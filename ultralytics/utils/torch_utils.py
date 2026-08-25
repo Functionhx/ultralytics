@@ -423,7 +423,7 @@ def model_info(model, detailed=False, verbose=True, imgsz=640):
         model (nn.Module): Model to analyze.
         detailed (bool, optional): Whether to print detailed layer information.
         verbose (bool, optional): Whether to print model information.
-        imgsz (int | list, optional): Input image size.
+        imgsz (int | list | tuple, optional): Input image size.
 
     Returns:
         (tuple): Tuple containing:
@@ -452,7 +452,7 @@ def model_info(model, detailed=False, verbose=True, imgsz=640):
             else:  # layers with no learnable params
                 LOGGER.info(f"{i:>5g}{mn:>40}{mt:>20}{False!r:>10}{0:>12g}{[]!s:>20}{'-':>10}{'-':>10}{'-':>15}")
 
-    flops = get_flops(model, imgsz)  # imgsz may be int or list, i.e. imgsz=640 or imgsz=[640, 320]
+    flops = get_flops(model, imgsz)  # imgsz may be int/list/tuple, e.g. imgsz=640 or imgsz=(640, 320)
     fused = " (fused)" if getattr(model, "is_fused", lambda: False)() else ""
     fs = f", {flops:.1f} GFLOPs" if flops else ""
     yaml_file = getattr(model, "yaml_file", "") or getattr(model, "yaml", {}).get("yaml_file", "")
@@ -526,7 +526,7 @@ def get_flops(model, imgsz=640):
 
     Args:
         model (nn.Module): The model to calculate FLOPs for.
-        imgsz (int | list, optional): Input image size.
+        imgsz (int | list | tuple, optional): Input image size.
 
     Returns:
         (float): The model's GFLOPs (billions of floating point operations).
@@ -545,7 +545,7 @@ def get_flops(model, imgsz=640):
 
         model = unwrap_model(model)
         p = next(model.parameters())
-        if not isinstance(imgsz, list):
+        if not isinstance(imgsz, (list, tuple)):
             imgsz = [imgsz, imgsz]  # expand if int/float
         attn = tuple(m for m in model.modules() if isinstance(m, (Attention, AAttn)))
         rtdetr = any(isinstance(m, RTDETRDecoder) for m in model.modules())
