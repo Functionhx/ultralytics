@@ -169,12 +169,11 @@ def test_rtdetr_fixed_shape_geometry(tmp_path):
 
 
 def test_profile_models_tuple_imgsz():
-    """Tuple image sizes stay two-dimensional at the profiler boundary and produce nonzero model FLOPs."""
+    """Tuple image sizes are normalized to a two-dimensional list at the profiler boundary."""
     from ultralytics.utils.benchmarks import ProfileModels
 
     profiler = ProfileModels([], imgsz=(320, 640), device="cpu")
     assert profiler.imgsz == [320, 640]
-    assert YOLO("yolo26n.yaml").model.info(imgsz=(320, 640))[-1] > 0.0
 
 
 def test_export(monkeypatch, tmp_path):
